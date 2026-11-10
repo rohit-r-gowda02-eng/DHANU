@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #070B08;
+  --foreground: #F9FAFB;
+}
+
+body {
+  background-color: #070B08;
+  color: #F9FAFB;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Space Grotesk headings */
+h1, h2, h3, .font-heading {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Custom dark forest scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #070B08;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #182A20;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #D4AF37;
+}
+
+/* 3D Card Surface Utility: Dark Green with Black & Gold */
+.dhanu-card {
+  background: #0D1510;
+  border: 1px solid rgba(212, 175, 55, 0.14);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.7), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  border-radius: 0.875rem;
+}
+
+.dhanu-card-interactive {
+  background: #0D1510;
+  border: 1px solid rgba(212, 175, 55, 0.14);
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  border-radius: 0.875rem;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dhanu-card-interactive:hover {
+  transform: translateY(-2px);
+  border-color: rgba(212, 175, 55, 0.35);
+  box-shadow: 0 10px 25px -4px rgba(212, 175, 55, 0.15), 0 0 0 1px rgba(212, 175, 55, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Primary Brushed Gold Button */
+.btn-primary {
+  background: linear-gradient(180deg, #E5C07B 0%, #D4AF37 50%, #B8860B 100%);
+  color: #070B08;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  box-shadow: 0 3px 0 0 #8C6D07, 0 6px 14px rgba(212, 175, 55, 0.35);
+  transition: all 0.15s ease-out;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(180deg, #F3E5AB 0%, #E5C07B 50%, #C59B27 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 0 #8C6D07, 0 8px 18px rgba(212, 175, 55, 0.45);
+}
+
+.btn-primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #8C6D07, 0 2px 6px rgba(212, 175, 55, 0.25);
+}
+
+/* Emerald Green Accent Button */
+.btn-emerald {
+  background: linear-gradient(180deg, #10B981 0%, #059669 100%);
+  color: #FFFFFF;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  box-shadow: 0 3px 0 0 #047857, 0 6px 14px rgba(16, 185, 129, 0.35);
+  transition: all 0.15s ease-out;
+}
+
+.btn-emerald:hover {
+  background: linear-gradient(180deg, #34D399 0%, #10B981 100%);
+  transform: translateY(-1px);
+}
+
+/* Secondary Button: Dark Forest Black */
+.btn-secondary {
+  background: #121E17;
+  color: #F9FAFB;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.15s ease-out;
+}
+
+.btn-secondary:hover {
+  background: #182A20;
+  border-color: rgba(212, 175, 55, 0.4);
+}
+
+/* Safe area for mobile devices */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}

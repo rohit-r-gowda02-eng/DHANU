@@ -1,0 +1,252 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  avatarUrl    String?
+  timezone     String    @default("UTC")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  lastActiveAt DateTime  @default(now())
+
+  profile           UserProfile?
+  activities        Activity[]
+  completions       DailyCompletion[]
+  loginRecords      LoginRecord[]
+  streakRecords     StreakRecord[]
+  goals             Goal[]
+  milestones        Milestone[]
+  notifications     Notification[]
+  settings          UserSettings?
+  pushSubscriptions PushSubscription[]
+  weeklyReports     WeeklyReport[]
+  monthlyReports    MonthlyReport[]
+}
+
+model UserProfile {
+  id                     String   @id @default(uuid())
+  userId                 String   @unique
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio                    String?
+  profession             String?
+  dailyCommitmentMinutes Int      @default(120)
+  targetWakeupTime       String   @default("06:30")
+  targetSleepTime        String   @default("23:00")
+  weeklyTargetHours      Float    @default(14.0)
+  onboardingCompleted    Boolean  @default(false)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+
+model Activity {
+  id             String            @id @default(uuid())
+  userId         String
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  category       String
+  description    String?
+  targetMinutes  Int               @default(60)
+  preferredTime  String            @default("09:00")
+  activeDays     String            @default("MON,TUE,WED,THU,FRI,SAT,SUN")
+  restDays       String            @default("")
+  color          String            @default("#0066FF")
+  icon           String            @default("Target")
+  isPaused       Boolean           @default(false)
+  orderIndex     Int               @default(0)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  completions   DailyCompletion[]
+  streakRecords StreakRecord[]
+
+  @@index([userId])
+}
+
+model DailyCompletion {
+  id              String       @id @default(uuid())
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activityId      String
+  activity        Activity     @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  date            String       // "YYYY-MM-DD"
+  status          String       @default("NOT_STARTED") // NOT_STARTED, IN_PROGRESS, COMPLETED, MISSED, SKIPPED
+  durationMinutes Int          @default(0)
+  accomplishments String?
+  learnings       String?
+  problemsSolved  String?
+  personalNotes   String?
+  missedReason    String?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  proofImages     ProofImage[]
+
+  @@unique([userId, activityId, date])
+  @@index([userId, date])
+  @@index([activityId, date])
+}
+
+model ProofImage {
+  id                String          @id @default(uuid())
+  dailyCompletionId String
+  dailyCompletion   DailyCompletion @relation(fields: [dailyCompletionId], references: [id], onDelete: Cascade)
+  imageUrl          String
+  thumbnailUrl      String?
+  caption           String?
+  fileSizeBytes     Int?
+  mimeType          String?
+  createdAt         DateTime        @default(now())
+
+  @@index([dailyCompletionId])
+}
+
+model LoginRecord {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      String   // "YYYY-MM-DD"
+  loginAt   DateTime @default(now())
+  ipAddress String?
+  userAgent String?
+
+  @@unique([userId, date])
+  @@index([userId])
+}
+
+model StreakRecord {
+  id               String    @id @default(uuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type             String    // "LOGIN" or "ACTIVITY"
+  activityId       String?
+  activity         Activity? @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  currentStreak    Int       @default(0)
+  longestStreak    Int       @default(0)
+  totalActiveDays  Int       @default(0)
+  lastRecordedDate String?   // "YYYY-MM-DD"
+  updatedAt        DateTime  @updatedAt
+
+  @@unique([userId, type, activityId])
+  @@index([userId])
+}
+
+model Goal {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title        String
+  description  String?
+  category     String
+  targetValue  Float
+  currentValue Float    @default(0)
+  unit         String
+  startDate    String   // "YYYY-MM-DD"
+  targetDate   String   // "YYYY-MM-DD"
+  status       String   @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED, ARCHIVED
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Milestone {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title         String
+  description   String
+  milestoneType String
+  icon          String
+  category      String
+  achievedAt    DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   @default("INACTIVITY_REMINDER") // INACTIVITY_REMINDER, STREAK_WARNING, MILESTONE_UNLOCKED, DAILY_SUMMARY, SYSTEM
+  isRead    Boolean  @default(false)
+  linkUrl   String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+}
+
+model UserSettings {
+  id                        String   @id @default(uuid())
+  userId                    String   @unique
+  user                      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inactivityReminderEnabled Boolean  @default(true)
+  inactivityIntervalHours   Int      @default(4)
+  quietHoursStart           String   @default("22:00")
+  quietHoursEnd             String   @default("07:00")
+  pushNotificationsEnabled  Boolean  @default(false)
+  soundEnabled              Boolean  @default(true)
+  theme                     String   @default("dark")
+  reminderTextCustom        String?
+  updatedAt                 DateTime @updatedAt
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model WeeklyReport {
+  id                          String   @id @default(uuid())
+  userId                      String
+  user                        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weekStartDate               String   // "YYYY-MM-DD"
+  weekEndDate                 String   // "YYYY-MM-DD"
+  totalCompleted              Int      @default(0)
+  totalMissed                 Int      @default(0)
+  totalMinutes                Int      @default(0)
+  consistencyRate             Float    @default(0.0)
+  bestActivityId              String?
+  bestActivityName            String?
+  improvementVsLastWeekPercent Float   @default(0.0)
+  summaryNotes                String?
+  createdAt                   DateTime @default(now())
+
+  @@index([userId])
+}
+
+model MonthlyReport {
+  id                  String   @id @default(uuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  monthYear           String   // "YYYY-MM"
+  totalCompleted      Int      @default(0)
+  totalHours          Float    @default(0.0)
+  topStreaks          String?  // JSON string
+  milestonesAchieved  Int      @default(0)
+  growthAnalysis      String?
+  areasForImprovement String?
+  createdAt           DateTime @default(now())
+
+  @@index([userId])
+}
+
